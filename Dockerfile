@@ -1,19 +1,12 @@
-FROM golang:1.10-stretch
-
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
-
-RUN apt install -y git gcc g++ make apt-utils nodejs
-
+FROM golang:1.11.1-alpine
+RUN apk add curl git gcc g++ make nodejs npm
 RUN npm install -g yarn
-
-RUN go get -u github.com/hakobe/gomibako
-
-WORKDIR /go/src/github.com/hakobe/gomibako
-
+RUN go get -u github.com/rubiojr/gomibako
+WORKDIR /go/src/github.com/rubiojr/gomibako
 RUN make
 
-RUN ln -s gomibako /usr/local/bin
-
+FROM alpine:latest
+WORKDIR /gomibako
+COPY --from=0 /go/src/github.com/rubiojr/gomibako .
 EXPOSE 8000/tcp
-
-CMD gomibako --port=8000
+CMD ./gomibako --port=8000
